@@ -2,6 +2,11 @@
 // meet jQuery
 // by Lugash
 
+// functions
+let iTrombinoCurentIndex = 0,
+    iTrombinoLength,
+    $trombinoFigures;
+
 const fHandleTabClick = function ( oEvent ) {
     oEvent.preventDefault();
     const $target = oEvent.currentTarget;
@@ -17,6 +22,14 @@ const fHandleTabClick = function ( oEvent ) {
     document.getElementById( $target.getAttribute( "data-tab-target" ) ).classList.add( "active" );
 };
 
+const fUpdateTrombino = function() {
+    $trombinoFigures[ iTrombinoCurentIndex ].classList.add( "hide" );
+    if ( ++iTrombinoCurentIndex === iTrombinoLength ) {
+        iTrombinoCurentIndex = 0;
+    }
+    $trombinoFigures[ iTrombinoCurentIndex ].classList.remove( "hide" );
+};
+
 // page loads
 window.addEventListener( "load", function() {
 
@@ -29,12 +42,17 @@ window.addEventListener( "load", function() {
         $elt.setAttribute( "target", "_new" );
     } );
 
-    // 2. select w/ a rel=external
+    // 2. tab Pane active
     Array.from( document.querySelectorAll( "ul.nav.nav-tabs a" ) ).forEach( function( $elt ) {
         $elt.addEventListener( "click", fHandleTabClick );
     } );
 
-    // 3. select w/ a rel=external
-
+    // 3. Trombinoscope img
+    document.querySelectorAll( "#trombino figure:not(:first-of-type)" ).forEach( function( $elt ) {
+        $elt.classList.add( "hide" );
+    } );
+    $trombinoFigures = Array.from( document.querySelectorAll( "#trombino figure" ) );
+    iTrombinoLength = $trombinoFigures.length;
+    setInterval( fUpdateTrombino, 1000 );
 
 } );
