@@ -28,47 +28,45 @@ const fHandleTrombino = function () {
 
 };
 
-const fhandleFormValidation = function ( oEvent ) {
-    let bHasErrors = false,
-        sEmail, sName, sComment;
+const fCheckEmail = function () {
+    let sEmail = ( $emailInput.val() || "" ).trim(),
+        bIsValid = rEmailValidation.test( sEmail );
 
-    // 1. check email
-    sEmail = ( $emailInput.val() || "" ).trim(); // trim supprime espaces a la fin et debut
-    if ( !rEmailValidation.test( sEmail ) ) {
-        console.error( "Email not good!" );
-        bHasErrors = true;
-    } else {
-        console.info ( "Email good!" );
+    $emailInput.parents( ".control-group" ).toggleClass( "error", !bIsValid );
+    return bIsValid;
+};
+
+const fCheckName = function () {
+    let sName = ( $nameInput.val() || "" ).trim(),
+        bIsValid = sName.length > 4;
+
+    $nameInput.parents( ".control-group" ).toggleClass( "error", !bIsValid );
+    return bIsValid;
+};
+
+const fCheckComment = function () {
+    let sComment = ( $commentTextarea.val() || "" ).trim(),
+        bIsValid = sComment.length > 10 && sComment.length < 150;
+
+    $commentTextarea.parents( ".control-group" ).toggleClass( "error", !bIsValid );
+    return bIsValid;
+};
+
+const fhandleFormValidation = function () {
+    let aChecks = [ fCheckEmail(), fCheckName(), fCheckComment() ],
+        bAllIsOk;
+
+    bAllIsOk = aChecks.reduce( function ( bPrevious, bCurrent ) { // reduce => boucle mais plus classe !
+        return bPrevious && bCurrent;
+    }, true );
+
+    if ( bAllIsOk ) {
+        return true;
     }
 
-    // 2. check name
-    sName = ( $nameInput.val() || "" ).trim();
-    if ( sName.length < 4 ) {
-        console.error( "Name not good!" );
-        bHasErrors = true;
-    } else {
-        console.info ( "Name good!" );
-    }
-
-    // 3. check comment
-    sComment = ( $commentTextarea.val() || "" ).trim();
-    if ( sComment.length < 5 || sComment.length > 150 ) {
-        console.error( "Comment not good!" );
-        bHasErrors = true;
-    } else {
-        console.info ( "Comment good!" );
-    }
-
-    // 4. errors
-    if ( bHasErrors ) {
-        window.alert( "Veuillez remplir tous les champs blablabla!" );
-        return false;
-    }
-
-    // return false; // evenement ne se produit pas, form non validé
-    return true; // evenement se produit, form validé et donc, envoyé
-
-}
+    window.alert( "Veuillez compéter correctement les champs!" );
+    return false;
+};
 
 // call when Dom is ready
 $( function() {
@@ -87,12 +85,9 @@ $( function() {
     setInterval( fHandleTrombino, 1000 );
 
     // 4. form validation
-    $commentForm = $( "form" );
-    $emailInput = $( "#inputEmail" );
-    $nameInput = $( "#inputName" );
-    $commentTextarea = $( "#inputComment" );
-
-    $commentForm.on( "submit", fhandleFormValidation );
-
+    ( $commentForm = $( "form" ) ).on( "submit", fhandleFormValidation );
+    ( $emailInput = $( "#inputEmail" ) ).on( "blur", fCheckEmail ); // blur = au relachement du focus
+    ( $nameInput = $( "#inputName" ) ).on( "blur", fCheckName );
+    ( $commentTextarea = $( "#inputComment" ) ).on( "blur", fCheckComment );
 
 } );
